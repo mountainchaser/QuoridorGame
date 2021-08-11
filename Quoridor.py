@@ -7,10 +7,29 @@ class QuoridorGame:
 	Represents a two player version of the Quoridor game.
 
 	"""
+
 	def __init__(self):
 		self._player_one = Player(1)
 		self._player_two = Player(2)
-		self._board = # list of lists?
+		self._board = "+==+==+==+==+==+==+==+==+==+\n" \
+		              "|            P1            |\n" \
+		              "+  +  +  +  +  +  +  +  +  +\n" \
+		              "|                          |\n" \
+		              "+  +  +  +  +  +  +  +  +  +\n" \
+		              "|                          |\n" \
+		              "+  +  +  +  +  +  +  +  +  +\n" \
+		              "|                          |\n" \
+		              "+  +  +  +  +  +  +  +  +  +\n" \
+		              "|                          |\n" \
+		              "+  +  +  +  +  +  +  +  +  +\n" \
+		              "|                          |\n" \
+		              "+  +  +  +  +  +  +  +  +  +\n" \
+		              "|                          |\n" \
+		              "+  +  +  +  +  +  +  +  +  +\n" \
+		              "|                          |\n" \
+		              "+  +  +  +  +  +  +  +  +  +\n" \
+		              "|            P2            |\n" \
+		              "+==+==+==+==+==+==+==+==+==+\n"
 		self._turn = self._player_one
 		self._status = "IN_PROGRESS"
 
@@ -26,7 +45,10 @@ class QuoridorGame:
 	def get_status(self):
 		return self._status
 
-	def set_turn(self, player): # takes player object
+	def get_board(self):
+		return self._board
+
+	def set_turn(self, player):  # takes player object
 		self._turn = player
 
 	def set_status(self, status):  # STATUS ::string:: "IN_PROGRESS", "PLAYER ONE WON", "PLAYER TWO WON"
@@ -34,33 +56,45 @@ class QuoridorGame:
 
 	def move_pawn(self, player, coordinate):
 		pass
-		# one space at a time
-		# check to see what is adjacent
+
+	# one space at a time
+	# check to see what is adjacent
+	# cardinal move
+	# diagonal move
 
 	def validate_pawn_move(self):
 		pass
 
 	def place_fence(self, player, fence_direction, coordinate):
-		#player
-		# vertical or horizontal (tuple)  v(0,0)
-		# game must still be in play
-		# fair play rule
+		pass
+
+	# player
+	# vertical or horizontal (tuple)  v(0,0)
+	# game must still be in play
+	# fair play rule
 	def validate_fence_placement(self):
 		pass
+
 	def is_winner(self, player):
 		"""Checks to see if player has won"""
-		# updates game status after making move
+		pass
+
+	# updates game status after making move
 
 	def print_board(self):
-		pass
+		print(self.get_board())
 
 
 class Player:
 	"""Represents a player in the Quoridor game."""
+
 	def __init__(self, player_number):
-		self._player_number = player_number
-		self._fences = 10
-		self._position = XX
+		self._player_number = player_number  # 1 or 2
+		self._fences = 10  # both players start with 10 unplaced fences
+		if self.get_player_number() == 1:
+			self._position = (4, 0)
+		elif self.get_player_number() == 2:
+			self._position = (4, 8)
 
 	def get_player_number(self):
 		return self._player_number
@@ -71,12 +105,11 @@ class Player:
 	def get_player_position(self):
 		return self._position
 
-	def decrease_fences(self):  #what happens if no fences left?
+	def decrease_fences(self):  # what happens if no fences left?
 		self._fences -= 1
 
 	def set_position(self, position):
 		self._position = position
-
 
 
 # make sure fence and pawns can only be placed in appropriate spots (not each others spots)
@@ -90,3 +123,6 @@ class Player:
 # 5. Validate fence placement:
 # 6. Tracking fences on/off board:
 # 7. Tracking pawn's position on board:
+
+q = QuoridorGame()
+q.print_board()
