@@ -1,94 +1,180 @@
 # Author: Allison Land
-# Date: 8/8/2021
-# Description: Portfolio project -
+# Date: 8/14/2021
+# Description: Portfolio project - defines a QuoridorGame class which allows a Player class (also defined here) to
+# play the board game Quoridor.
 
 class QuoridorGame:
 	"""
-	Represents a two player version of the Quoridor game.
-
+	Represents a two player version of the Quoridor board game. This class is responsible for initializing instances of
+	the Player class for Player 1 and Player 2, storing and creating the board, tracking whose turn it is, and tracking
+	the status of the game. The board contains current placement of fences as well as current player positions.
+	The game itself is played using an instance of the QuoridorGame class. The QuoridorGame
+	class interacts with the Player class because the player class contains data that is specific to each player:
+	mainly the number of fences left to play, and the current position of the player on the board. This makes it more
+	streamlined to implement certain methods.
 	"""
-
 	def __init__(self):
+		"""Initializes QuoridorGame object."""
 		self._player_one = Player(1)
 		self._player_two = Player(2)
-		self._board = "+==+==+==+==+==+==+==+==+==+\n" \
-		              "|            P1            |\n" \
-		              "+  +  +  +  +  +  +  +  +  +\n" \
-		              "|                          |\n" \
-		              "+  +  +  +  +  +  +  +  +  +\n" \
-		              "|                          |\n" \
-		              "+  +  +  +  +  +  +  +  +  +\n" \
-		              "|                          |\n" \
-		              "+  +  +  +  +  +  +  +  +  +\n" \
-		              "|                          |\n" \
-		              "+  +  +  +  +  +  +  +  +  +\n" \
-		              "|                          |\n" \
-		              "+  +  +  +  +  +  +  +  +  +\n" \
-		              "|                          |\n" \
-		              "+  +  +  +  +  +  +  +  +  +\n" \
-		              "|                          |\n" \
-		              "+  +  +  +  +  +  +  +  +  +\n" \
-		              "|            P2            |\n" \
-		              "+==+==+==+==+==+==+==+==+==+\n"
-		self._turn = self._player_one
-		self._status = "IN_PROGRESS"
+		self._board = {}  # stores board
+		for x in range(9):
+			for y in range(9):
+				self._board[(x, y)] = []  # generates board coordinates
+				if x == 0:
+					self._board[(x,y)].append("v")  # places fence on leftmost side of board (prevents accidental fence placement)
+				if y == 0 :
+					self._board[(x,y)].append("h")  # places fences on topmost side of board (prevents accidental fence placement)
+				if x == 4 and y == 0:
+					self._board[(x,y)].append("P1")  # initializes player one start space
+				if x == 4 and y == 8:
+					self._board[(x,y)].append("P2")  # initializes player two start space
+
+		self._turn = self._player_one  # initializes first turn to player one
+		self._status = "IN_PROGRESS"  # "IN_PROGRESS", "PLAYER_ONE_WINS", "PLAYER_TWO_WINS"
 
 	def get_player_one(self):
+		""":returns: player one object."""
 		return self._player_one
 
 	def get_player_two(self):
+		""":returns: player two object."""
 		return self._player_two
 
 	def get_turn(self):
+		""":returns: which player's turn it currently is."""
 		return self._turn
 
 	def get_status(self):
+		""":returns: whether game is in progress or has been won."""
 		return self._status
 
 	def get_board(self):
+		""":returns: the current status of the board, including player and fence locations."""
 		return self._board
 
 	def set_turn(self, player):  # takes player object
+		""":param: which player's turn it is."""
 		self._turn = player
 
 	def set_status(self, status):  # STATUS ::string:: "IN_PROGRESS", "PLAYER ONE WON", "PLAYER TWO WON"
+		""":param: the current states of the game."""
 		self._status = status
 
 	def move_pawn(self, player, coordinate):
+		""" Moves the player's pawn to a valid space.
+		method takes following two parameters in order: an integer that represents which player (1 or 2) is making
+		the move and a tuple with the coordinates of where the pawn is going to be moved to.
+		:return:
+		if the move is forbidden by the rule or blocked by the fence, return False
+		if the move was successful or if the move makes the player win, return True
+		if the game has been already won, return False"""
 		pass
 
 	# one space at a time
 	# check to see what is adjacent
-	# cardinal move
-	# diagonal move
+	# cardinal move vs. diagonal move
 
-	def validate_pawn_move(self):
+	def validate_pawn_move(self, player, coordinate):
+		"""
+		Checks to see if pawn move is valid.
+		:param: an integer that represents which player (1 or 2) is making the move,
+		 a tuple of integers that represents the position on which the pawn is to be placed.
+		:return:
+		If valid, returns True.
+		If invalid, returns False.
+		"""
 		pass
+	# is coordinate on board?
+	# is coordinate adjacent to current position?
+	# is a fence blocking the move?
+	# where is the other player currently?
+	# game must still be in play
 
 	def place_fence(self, player, fence_direction, coordinate):
+		"""
+		Places a fence on a valid coordinate. Fences are one space long.
+		:param: an integer that represents which player (1 or 2) is making the move,
+		a letter indicating whether it is vertical (v) or horizontal (h) fence,
+		a tuple of integers that represents the position on which the fence is to be placed.
+		:return:
+		if player has no fence left, or if the fence is out of the boundaries of the board, or if there is already a fence there and the new fence will overlap or intersect with the existing fence, return False.
+		If the fence can be placed, return True.
+		If it breaks the fair-play rule (and if you are doing the extra credit part), return exactly the string breaks the fair play rule.
+		If the game has been already won, return False
+		"""
 		pass
-
 	# player
 	# vertical or horizontal (tuple)  v(0,0)
 	# game must still be in play
+	# can't fully block player from reaching goal line
 	# fair play rule
-	def validate_fence_placement(self):
+
+	def validate_fence_placement(self, player, fence_direction, coordinate):
+		"""
+		Checks to see if a fence placement is valid.
+		:param: an integer that represents which player (1 or 2) is making the move,
+		a letter indicating whether it is vertical (v) or horizontal (h) fence,
+		a tuple of integers that represents the position on which the fence is to be placed.
+		:return:
+		If valid, returns True.
+		If invalid, returns False.
+		"""
 		pass
+	# checks that player has fences left off the board to place
+	# checks that a fence is not already in desired spot
+	# checks that fence placement won't fully block player from reaching goal line
 
 	def is_winner(self, player):
-		"""Checks to see if player has won"""
+		"""To be used after making a move - checks to see whether player has won.
+		:param:
+		a single integer representing the player number as a parameter
+		:return:
+		returns True if that player has won and False if that player has not won."""
 		pass
-
-	# updates game status after making move
+	# used in make_move: if player has won, updates game status after making move
+	# player 1 wins by reaching y == 8
+	# player 2 wins by reaching y == 0
 
 	def print_board(self):
-		print(self.get_board())
+		"""Prints visual representation of current board."""
+		board = "+==+==+==+==+==+==+==+==+==+\n" \
+		        "|            P1            |\n" \
+		        "+  +  +  +  +  +  +  +  +  +\n" \
+		        "|                          |\n" \
+		        "+  +  +  +  +  +  +  +  +  +\n" \
+		        "|                          |\n" \
+		        "+  +  +  +  +  +  +  +  +  +\n" \
+		        "|                          |\n" \
+		        "+  +  +  +  +  +  +  +  +  +\n" \
+		        "|                          |\n" \
+		        "+  +  +  +  +  +  +  +  +  +\n" \
+		        "|                          |\n" \
+		        "+  +  +  +  +  +  +  +  +  +\n" \
+		        "|                          |\n" \
+		        "+  +  +  +  +  +  +  +  +  +\n" \
+		        "|                          |\n" \
+		        "+  +  +  +  +  +  +  +  +  +\n" \
+		        "|            P2            |\n" \
+		        "+==+==+==+==+==+==+==+==+==+\n"
+		# for coord in self.get_board():  # add in player positions and fences
+		print(board)
+
 
 
 class Player:
-	"""Represents a player in the Quoridor game."""
+	"""Represents a player in the Quoridor game. The player class contains data that is specific to each player:
+	the player number, the number of fences left to play, and the current position of the player on the board. This
+	makes it more streamlined to implement certain methods.
+
+	Note: fences placed on board are not stored in player class because they are no longer unique to the player.
+
+	The Player class interacts with the QuoridorGame instance which is the mechanism for playing the game. The
+	Player class must interact with the QuoridorGame class because it stores all game specific information
+	such as the board, current game status, etc, as well as the methods to actually play the game."""
 
 	def __init__(self, player_number):
+		"""Initializes player object"""
 		self._player_number = player_number  # 1 or 2
 		self._fences = 10  # both players start with 10 unplaced fences
 		if self.get_player_number() == 1:
@@ -97,32 +183,76 @@ class Player:
 			self._position = (4, 8)
 
 	def get_player_number(self):
+		""":returns: player number."""
 		return self._player_number
 
 	def get_fences(self):
+		""":returns: current number of fences player has off the board."""
 		return self._fences
 
 	def get_player_position(self):
+		""":returns: current board position of the player."""
 		return self._position
 
-	def decrease_fences(self):  # what happens if no fences left?
-		self._fences -= 1
+	def decrease_fences(self):
+		"""Decreases the number of fences by 1.
+		:return:
+		if unable to decrease fences, returns False"""
+		if self.get_fences() > 0:
+			self._fences -= 1
+		else:
+			return False
 
 	def set_position(self, position):
+		"""Updates player's current position.
+		:param: tuple representing coordinates as a parameter
+		:return: None"""
 		self._position = position
 
 
-# make sure fence and pawns can only be placed in appropriate spots (not each others spots)
-
-
 # DETAILED TEXT DESCRIPTIONS OF HOW TO HANDLE THE SCENARIOS
-# 1. Storing the board:
-# 2. Initializing the board:
-# 3. Tracking current turn (which player):
-# 4. Validate pawn move:
-# 5. Validate fence placement:
-# 6. Tracking fences on/off board:
-# 7. Tracking pawn's position on board:
 
-q = QuoridorGame()
-q.print_board()
+# 1. Storing the board: The board will be stored in a dictionary in the init method of the QuoridorGame class. The
+#  coordinates of the board will be saved as keys, while the fences and player positions will be stored as a list of
+#  values for each coordinate. If a coordinate doesn't have any fences or players, the value will be an empty list.
+
+# 2. Initializing the board: The board will be initialized in the init method of the QuoridorGame class as a dictionary.
+#  In order to generate the coordinates as keys, I will use for loops to add each coordinate to the dictionary, as well
+#  as any existing fences (I am treating fences as starting from the top left corner of each space, so the top and
+#  left sides of the board will be initialized with fences, since the edges cannot have fences. You will not be able to
+#  place fences on the bottom and right most sides of the board, since each coordinate can only have a fence placed on
+#  the top and left sides.
+
+# 3. Tracking current turn (which player): The turn will be stored in the init method of the QuoridorGame class. Upon
+#  initialization it will begin with Player 1's turn. The turn will be represented by an instance of the Player object.
+
+# 4. Validate pawn move:
+#	Check that game has not already been won.
+#   Check other player location: if other player adjacent, cannot move to other player's position
+#			If other player adjacent and move is jumping opponent, check that fence is not behind player
+#			If other player adjacent, fence behind player, and move is diagonally adjacent, check that fence
+#			is not blocking move
+#	Else check that move is adjacent, that fence is not blocking move (ie. Vertical fence present on (6,6) would block move
+#	between (5,6) and (6,6)), and that other player is not on desired space. Returns true if move is valid, else returns
+#	false.
+
+# 5. Validate fence placement:
+#	When board is initialized, fences will be placed on topmost side and leftmost side of board to ensure that no fences
+#	can be accidentally placed there. Due to the design of the fence placements being on the top and left side of the
+#	coordinates, the bottommost and rightmost sides of the board cannot have fences placed on them.
+#	If fence not on same coordinate and same orientation (vertical vs. horizontal) and fence placement does not block
+#	access of opponent to winning side of the board, returns True. Else returns False.
+
+# 6. Tracking fences on/off board: Fences off the board are stored in the Player object. Each player starts with 10
+#	fences. Each time a player places a fence their total number of fences decreases. When a fence is placed on the
+#	board, it is then no longer associated with the player, and is simply stored in the board.
+
+# 7. Tracking pawn's position on board: The pawn's position will be stored in two places: both on the board in the
+#	QuoridorGame class, as well as an attribute of the Player class. This will enable better functionality in
+#	implementing methods, and will require that the pawn's location is updated in both spots simultaneously when a move
+#	is made.
+
+# INITIAL TESTS
+# q = QuoridorGame()
+# q.print_board()
+# print(q.get_board())
