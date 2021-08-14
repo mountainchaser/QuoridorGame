@@ -96,6 +96,9 @@ class QuoridorGame:
 		else:
 			return False
 
+	def is_pawn_jump(self):
+		pass
+
 	def check_fence_block(self, old_coord, new_coord):
 		if self.move_direction(old_coord, new_coord) == "horizontal":
 			if "h" in self.get_board()[old_coord] or "h" in self.get_board()[(old_coord[0] + 1, old_coord[1])]:
@@ -151,12 +154,14 @@ class QuoridorGame:
 			opponent_object = self.get_player_two()
 		else:
 			opponent_object = self.get_player_one()
+
+		# self.is_pawn_jump()
 		player_location = player_object.get_player_position()
 		if self.get_status() is "IN PROGRESS":  # game is not won
 			if self.get_turn() == player_object:  # is player's turn
 				if self.is_on_board(coordinate) and self.is_adjacent(player_location, coordinate) is True: # is on board and adjacent
 					if opponent_object.get_player_position() != coordinate:  # opponent not on space
-						if self.check_fence_block(player_location, coordinate):
+						if self.check_fence_block(player_location, coordinate) == False: # not blocked by fence
 							return True
 		else:
 			return False
