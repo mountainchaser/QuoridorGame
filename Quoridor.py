@@ -22,16 +22,16 @@ class QuoridorGame:
 			for y in range(9):
 				self._board[(x, y)] = []  # generates board coordinates
 				if x == 0:
-					self._board[(x,y)].append("v")  # places fence on leftmost side of board (prevents accidental fence placement)
-				if y == 0 :
-					self._board[(x,y)].append("h")  # places fences on topmost side of board (prevents accidental fence placement)
+					self._board[(x, y)].append("v")  # places fence on leftmost side of board (prevents accidental fence placement)
+				if y == 0:
+					self._board[(x, y)].append("h")  # places fences on topmost side of board (prevents accidental fence placement)
 				if x == 4 and y == 0:
-					self._board[(x,y)].append("P1")  # initializes player one start space
+					self._board[(x, y)].append("P1")  # initializes player one start space
 				if x == 4 and y == 8:
-					self._board[(x,y)].append("P2")  # initializes player two start space
+					self._board[(x, y)].append("P2")  # initializes player two start space
 
 		self._turn = self._player_one  # initializes first turn to player one
-		self._status = "IN_PROGRESS"  # "IN_PROGRESS", "PLAYER_ONE_WINS", "PLAYER_TWO_WINS"
+		self._status = "IN PROGRESS"  # "IN PROGRESS", "PLAYER ONE WINS", "PLAYER TWO WINS"
 
 	def get_player_one(self):
 		""":returns: player one object."""
@@ -57,9 +57,65 @@ class QuoridorGame:
 		""":param: which player's turn it is."""
 		self._turn = player
 
-	def set_status(self, status):  # STATUS ::string:: "IN_PROGRESS", "PLAYER ONE WON", "PLAYER TWO WON"
+	def set_status(self, status):  # STATUS ::string:: "IN PROGRESS", "PLAYER 1 WON", "PLAYER 2 WON"
 		""":param: the current states of the game."""
 		self._status = status
+
+	def check_player(self, player):
+		if player == 1:
+			return self.get_player_one()
+		elif player == 2:
+			return self.get_player_two()
+		else:
+			return "not a valid player number"
+
+	def is_on_board(self, coordinate):
+		if coordinate in self.get_board():
+			return True
+		else:
+			return False
+
+	def is_adjacent(self, old_coord, new_coord):
+		adjacent_spaces = [(old_coord[0] + 1, old_coord[1] + 1), (old_coord[0] + 1, old_coord[1] - 1),
+						   (old_coord[0] + 1, old_coord[1]), (old_coord[0], old_coord[1] + 1),
+						   (old_coord[0], old_coord[1] - 1), (old_coord[0] - 1, old_coord[1]),
+						   (old_coord[0] - 1, old_coord[1] + 1), (old_coord[0] - 1, old_coord[1] - 1)]
+		if new_coord in adjacent_spaces:
+			return True
+		else:
+			return False
+
+	def move_direction(self, old_coord, new_coord):
+		if self.is_adjacent(old_coord, new_coord) is True:
+			if new_coord[0] != old_coord[0] and new_coord[1] == old_coord[1]:  # horizontal move
+				return "horizontal"
+			elif new_coord[0] == old_coord[0] and new_coord[1] != old_coord[1]:
+				return "vertical"
+			else:
+				return "diagonal"
+		else:
+			return False
+
+	def check_fence_block(self, old_coord, new_coord):
+		if self.move_direction(old_coord, new_coord) == "horizontal":
+			if "h" in self.get_board()[old_coord] or "h" in self.get_board()[(old_coord[0] + 1, old_coord[1])]:
+				return True
+			else:
+				return False
+		elif self.move_direction(old_coord, new_coord) == "vertical":
+			if "v" in self.get_board()[old_coord] or "v" in self.get_board()[(old_coord[0], old_coord[1] + 1)]:
+				return True
+			else:
+				return False
+		elif self.move_direction(old_coord, new_coord) == "diagonal":
+			if "h" or "v" in self.get_board()[(old_coord[0] + 1, old_coord[1] + 1)] or \
+				self.get_board()[(old_coord[0] + 1, old_coord[1] - 1)] or \
+				self.get_board()[(old_coord[0] - 1, old_coord[1] + 1)] or \
+				self.get_board()[(old_coord[0] - 1, old_coord[1] - 1)]:
+				return True
+			else:
+				return False
+
 
 	def move_pawn(self, player, coordinate):
 		""" Moves the player's pawn to a valid space.
@@ -69,27 +125,42 @@ class QuoridorGame:
 		if the move is forbidden by the rule or blocked by the fence, return False
 		if the move was successful or if the move makes the player win, return True
 		if the game has been already won, return False"""
-		pass
+		player_object = self.check_player(player)
+		validation = self.validate_pawn_move(player, coordinate)
+		if validation is True:
+			self.get_board()[player_object.get_player_position()].remove("P" + str(player))
+			self.get_board()[coordinate].append("P" + str(player))
+			player_object.set_position(coordinate)
+			self.set_turn(player_object)
+			if self.is_winner(player) == True:
+				self.set_status("PLAYER " + player + " WINS")
+		return validation
 
-	# one space at a time
-	# check to see what is adjacent
-	# cardinal move vs. diagonal move
 
 	def validate_pawn_move(self, player, coordinate):
 		"""
 		Checks to see if pawn move is valid.
 		:param: an integer that represents which player (1 or 2) is making the move,
-		 a tuple of integers that represents the position on which the pawn is to be placed.
+		a tuple of integers that represents the position on which the pawn is to be placed.
 		:return:
 		If valid, returns True.
 		If invalid, returns False.
 		"""
-		pass
-	# is coordinate on board?
-	# is coordinate adjacent to current position?
-	# is a fence blocking the move?
-	# where is the other player currently?
-	# game must still be in play
+		player_object = self.check_player(player)
+		if player_object == self.get_player_one():
+			opponent_object = self.get_player_two()
+		else:
+			opponent_object = self.get_player_one()
+		player_location = player_object.get_player_position()
+		if self.get_status() is "IN PROGRESS":  # game is not won
+			if self.get_turn() == player_object:  # is player's turn
+				if self.is_on_board(coordinate) and self.is_adjacent(player_location, coordinate) is True: # is on board and adjacent
+					if opponent_object.get_player_position() != coordinate:  # opponent not on space
+						if self.check_fence_block(player_location, coordinate):
+							return True
+		else:
+			return False
+		# add jump move
 
 	def place_fence(self, player, fence_direction, coordinate):
 		"""
@@ -98,19 +169,44 @@ class QuoridorGame:
 		a letter indicating whether it is vertical (v) or horizontal (h) fence,
 		a tuple of integers that represents the position on which the fence is to be placed.
 		:return:
-		if player has no fence left, or if the fence is out of the boundaries of the board, or if there is already a fence there and the new fence will overlap or intersect with the existing fence, return False.
+		if player has no fence left, or if the fence is out of the boundaries of the board, or if there is already
+		a fence there and the new fence will overlap or intersect with the existing fence, return False.
 		If the fence can be placed, return True.
-		If it breaks the fair-play rule (and if you are doing the extra credit part), return exactly the string breaks the fair play rule.
+		If it breaks the fair-play rule (and if you are doing the extra credit part), return exactly the string breaks
+		the fair play rule.
 		If the game has been already won, return False
 		"""
+		player_1 = self.get_player_one()
+		player_2 = self.get_player_two()
+		validation = self.validate_fence_placement(player, fence_direction, coordinate)
+		if validation is True:  # if move is valid
+			self.get_board()[coordinate].append(fence_direction)  # adds fence to board
+			if player == 1:     # decreases fences for player placing fence
+				player_1.decrease_fences()
+			elif player == 2:
+				player_2.decrease_fences()
+			return True
+		else:  # if move invalid
+			return validation
+
+	def check_for_fence(self, fence_direction, coordinate):  # helper function for validate fence placement
+		if fence_direction in self.get_board()[coordinate]:
+			return True   # fence found
+		else:
+			return False  # no fence found
+
+	def fair_play_rule(self, fence_direction, coordinate):
 		pass
+		# recursively check for path to winning side
+		# If fair play, returns true
+		# else, returns false
 	# player
 	# vertical or horizontal (tuple)  v(0,0)
 	# game must still be in play
 	# can't fully block player from reaching goal line
 	# fair play rule
 
-	def validate_fence_placement(self, player, fence_direction, coordinate):
+	def validate_fence_placement(self, player, fence_direction, coordinate):  # helper function for place fence
 		"""
 		Checks to see if a fence placement is valid.
 		:param: an integer that represents which player (1 or 2) is making the move,
@@ -120,10 +216,15 @@ class QuoridorGame:
 		If valid, returns True.
 		If invalid, returns False.
 		"""
-		pass
-	# checks that player has fences left off the board to place
-	# checks that a fence is not already in desired spot
-	# checks that fence placement won't fully block player from reaching goal line
+		player_1 = self.get_player_one()
+		player_2 = self.get_player_one()
+		if self.check_for_fence(fence_direction, coordinate) is False and self.get_status() == "IN PROGRESS":  # if no fence already there and game in progress
+			if player == 1 and player_1.get_fences() > 0:  # if player one still has fences
+				return self.fair_play_rule(fence_direction, coordinate)
+			elif player == 2 and player_2.get_fences() > 0:
+				return self.fair_play_rule(fence_direction, coordinate)
+		else:
+			return False
 
 	def is_winner(self, player):
 		"""To be used after making a move - checks to see whether player has won.
@@ -131,35 +232,49 @@ class QuoridorGame:
 		a single integer representing the player number as a parameter
 		:return:
 		returns True if that player has won and False if that player has not won."""
-		pass
+		p1_win = []
+		p2_win = []
+		for x in range(9):
+			for y in range(9):
+				if y == 8:
+					p1_win.append((x, y))
+				if y == 0:
+					p2_win.append((x, y))
+		if player == 1:
+			if self.get_player_one().get_player_position() in p1_win:
+				return True
+		if player == 2:
+			if self.get_player_two().get_player_position() in p2_win:
+				return True
+		else:
+			return False
 	# used in make_move: if player has won, updates game status after making move
 	# player 1 wins by reaching y == 8
 	# player 2 wins by reaching y == 0
 
-	def print_board(self):
-		"""Prints visual representation of current board."""
-		board = "+==+==+==+==+==+==+==+==+==+\n" \
-		        "|            P1            |\n" \
-		        "+  +  +  +  +  +  +  +  +  +\n" \
-		        "|                          |\n" \
-		        "+  +  +  +  +  +  +  +  +  +\n" \
-		        "|                          |\n" \
-		        "+  +  +  +  +  +  +  +  +  +\n" \
-		        "|                          |\n" \
-		        "+  +  +  +  +  +  +  +  +  +\n" \
-		        "|                          |\n" \
-		        "+  +  +  +  +  +  +  +  +  +\n" \
-		        "|                          |\n" \
-		        "+  +  +  +  +  +  +  +  +  +\n" \
-		        "|                          |\n" \
-		        "+  +  +  +  +  +  +  +  +  +\n" \
-		        "|                          |\n" \
-		        "+  +  +  +  +  +  +  +  +  +\n" \
-		        "|            P2            |\n" \
-		        "+==+==+==+==+==+==+==+==+==+\n"
-		# for coord in self.get_board():  # add in player positions and fences
-		print(board)
-
+	# def print_board(self):
+	# 	"""Prints visual representation of current board."""
+	# 	board = "+==+==+==+==+==+==+==+==+==+\n" \
+	# 	        "|            P1            |\n" \
+	# 	        "+  +  +  +  +  +  +  +  +  +\n" \
+	# 	        "|                          |\n" \
+	# 	        "+  +  +  +  +  +  +  +  +  +\n" \
+	# 	        "|                          |\n" \
+	# 	        "+  +  +  +  +  +  +  +  +  +\n" \
+	# 	        "|                          |\n" \
+	# 	        "+  +  +  +  +  +  +  +  +  +\n" \
+	# 	        "|                          |\n" \
+	# 	        "+  +  +  +  +  +  +  +  +  +\n" \
+	# 	        "|                          |\n" \
+	# 	        "+  +  +  +  +  +  +  +  +  +\n" \
+	# 	        "|                          |\n" \
+	# 	        "+  +  +  +  +  +  +  +  +  +\n" \
+	# 	        "|                          |\n" \
+	# 	        "+  +  +  +  +  +  +  +  +  +\n" \
+	# 	        "|            P2            |\n" \
+	# 	        "+==+==+==+==+==+==+==+==+==+\n"
+	# 	# for coord in self.get_board():  # add in player positions and fences
+	# 	print(board)
 
 
 class Player:
@@ -253,6 +368,8 @@ class Player:
 #	is made.
 
 # INITIAL TESTS
-# q = QuoridorGame()
+q = QuoridorGame()
 # q.print_board()
-# print(q.get_board())
+print(q.is_winner(1))
+q.get_player_one().set_position((7, 8))
+print(q.is_winner(1))
