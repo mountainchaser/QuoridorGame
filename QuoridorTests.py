@@ -1,10 +1,34 @@
 import unittest
-import Quoridor
+from Quoridor import QuoridorGame, Player
 
 
 class MyTestCase(unittest.TestCase):
-	def test_something(self):
-		self.assertEqual(True, False)
+	"""Quoridor.py test suite"""
+
+	def setUp(self):
+		"""Creates test objects"""
+		self.q1 = QuoridorGame()
+		self.q1.move_pawn(self.q1.get_player_one().get_player_number(), (4, 1))
+		self.q1.move_pawn(self.q1.get_player_two().get_player_number(), (3, 8))
+		self.q1.move_pawn(self.q1.get_player_two().get_player_number(), (2, 8))
+		self.q1.place_fence(self.q1.get_player_one().get_player_number(), "h", (4,2))
+
+	def test_object_can_be_created(self):
+		self.assertIsInstance(self.q1, QuoridorGame)
+		self.assertIsInstance(self.q1.get_player_one(), Player)
+		self.assertIsInstance(self.q1.get_player_two(), Player)
+
+	def test_moves(self):
+		self.assertEqual(self.q1.get_player_one().get_player_position(), (4,1))
+		self.assertEqual(self.q1.get_player_two().get_player_position(), (3, 8))
+		self.assertFalse(self.q1.move_pawn(self.q1.get_player_two().get_player_number(), (2, 8)))
+		self.assertIn("P2", self.q1.get_board()[(3, 8)])
+		self.assertIn("P1", self.q1.get_board()[(4, 1)])
+
+	def test_placing_fences(self):
+		self.assertEqual(["h"], self.q1.get_board()[(4,2)])
+
+# PLACING FENCES
 
 # test QuoridorGame is instance
 # test player is instance

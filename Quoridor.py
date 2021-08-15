@@ -65,6 +65,9 @@ class QuoridorGame:
         self._status = status
 
     def check_player(self, player):
+        """Looks up player object by number.
+        :param: player number (int)
+        ":returns: player_object, or "not a valid player number"""
         if player == 1:
             return self.get_player_one()
         elif player == 2:
