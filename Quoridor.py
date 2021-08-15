@@ -443,13 +443,13 @@ class Player:
 
 
 # INITIAL TESTS
-q = QuoridorGame()
-print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
-print(q.move_pawn(1, (4,1))) #moves the Player1 pawn -- valid move, returns True
-print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
-print(q.move_pawn(2, (4,6))) #moves the Player2 pawn -- valid move, returns True
-print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- returns True
-print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
-print(q.is_winner(1)) #returns False because Player 1 has not won
-print(q.is_winner(2)) #returns False because Player 2 has not won
+# q = QuoridorGame()
+# print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
+# print(q.move_pawn(1, (4,1))) #moves the Player1 pawn -- valid move, returns True
+# print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
+# print(q.move_pawn(2, (4,6))) #moves the Player2 pawn -- valid move, returns True
+# print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- returns True
+# print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
+# print(q.is_winner(1)) #returns False because Player 1 has not won
+# print(q.is_winner(2)) #returns False because Player 2 has not won
 
