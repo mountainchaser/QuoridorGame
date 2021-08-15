@@ -72,6 +72,14 @@ class QuoridorGame:
         else:
             return "not a valid player number"
 
+    def get_opponent(self, player):
+        player_object = self.check_player(player)
+        if player_object == self.get_player_one():
+            opponent_object = self.get_player_two()
+        else:
+            opponent_object = self.get_player_one()
+        return opponent_object
+
     def is_on_board(self, coordinate):
         if coordinate in self.get_board():
             return True
@@ -121,26 +129,22 @@ class QuoridorGame:
         """Generates proper coordinates to check for fence blocks for pawn jump scenarios."""
         move_direction = self.move_direction(old_coord, new_coord)
         if move_direction == "left":
-            x = old_coord[0]
-            y = old_coord[1] - 2
-        elif move_direction == "right":
-            x = old_coord[0]
-            y = old_coord[1] + 2
-        elif move_direction == "up":
-            x = old_coord[0] + 2
-            y = old_coord[1]
-        elif move_direction == "down":
             x = old_coord[0] - 2
             y = old_coord[1]
+        elif move_direction == "right":
+            x = old_coord[0] + 2
+            y = old_coord[1]
+        elif move_direction == "up":
+            x = old_coord[0]
+            y = old_coord[1] + 2
+        elif move_direction == "down":
+            x = old_coord[0]
+            y = old_coord[1] - 2
         new_coord = (x, y)
         return new_coord
 
     def is_pawn_jump(self, player, old_coord, new_coord):
-        player_object = self.check_player(player)
-        if player_object == self.get_player_one():
-            opponent_object = self.get_player_two()
-        else:
-            opponent_object = self.get_player_one()
+        opponent_object = self.get_opponent(player)
         opponent_location = opponent_object.get_player_position()
         opponent_direction = self.move_direction(old_coord, opponent_location)
         move_direction = self.move_direction(old_coord, new_coord)
@@ -178,17 +182,19 @@ class QuoridorGame:
         if the move was successful or if the move makes the player win, return True
         if the game has been already won, return False"""
         player_object = self.check_player(player)
-        validation = self.validate_pawn_move(player, coordinate)
+        opponent_object = self.get_opponent(player_object)
+        validation = self.validate_pawn_move(player, player_object.get_player_position(), coordinate)
         if validation is True:
             self.get_board()[player_object.get_player_position()].remove("P" + str(player))
             self.get_board()[coordinate].append("P" + str(player))
             player_object.set_position(coordinate)
-            self.set_turn(player_object)
+            self.set_turn(opponent_object)
             if self.is_winner(player):
                 self.set_status("PLAYER " + str(player) + " WINS")
+            return True
         return validation
 
-    def validate_pawn_move(self, player, coordinate):
+    def validate_pawn_move(self, player, player_location, coordinate):
         """
         Checks to see if pawn move is valid.
         :param: an integer that represents which player (1 or 2) is making the move,
@@ -198,56 +204,50 @@ class QuoridorGame:
         If invalid, returns False.
         """
         player_object = self.check_player(player)
-        if player_object == self.get_player_one():
-            opponent_object = self.get_player_two()
-        else:
-            opponent_object = self.get_player_one()
-        player_location = player_object.get_player_position()
+        opponent_object = self.get_opponent(player)
         opponent_location = opponent_object.get_player_position()
         if self.get_status() == "IN PROGRESS" and \
                 self.get_turn() == player_object and \
                 self.is_on_board(coordinate) and \
                 opponent_location != coordinate:  # if game is not won, is player's turn, coordinate on board, and opponent not on space
-			if self.is_adjacent(player_location, coordinate) is True and \
+            if self.is_adjacent(player_location, coordinate) is True and \
                     self.check_fence_block(player_location,
                                            coordinate) is False:  # is adjacent and not blocked by fence
-				return True  # valid move
-			elif self.is_pawn_jump(player, player_location, coordinate) is True and \
+                return True  # valid move
+            elif self.is_pawn_jump(player, player_location, coordinate) is True and \
                 self.check_fence_block(player_location,
-							self.pawn_jump_coordinates_for_check_fence(player_location, coordinate)) \
+                            self.pawn_jump_coordinates_for_check_fence(player_location, coordinate)) \
                     is False:  # if a pawn jump and not blocked by fence
-				return True  # valid move
-			else:
-				return False  # invalid move
-		else:
-			return False  # invalid move
+                return True  # valid move
+            else:
+                return False  # invalid move
+        else:
+            return False  # invalid move
 
     def place_fence(self, player, fence_direction, coordinate):
-		"""
-		Places a fence on a valid coordinate. Fences are one space long.
-		:param: an integer that represents which player (1 or 2) is making the move,
-		a letter indicating whether it is vertical (v) or horizontal (h) fence,
-		a tuple of integers that represents the position on which the fence is to be placed.
-		:return:
-		if player has no fence left, or if the fence is out of the boundaries of the board, or if there is already
-		a fence there and the new fence will overlap or intersect with the existing fence, return False.
-		If the fence can be placed, return True.
-		If it breaks the fair-play rule (and if you are doing the extra credit part), return exactly the string breaks
-		the fair play rule.
-		If the game has been already won, return False
-		"""
-        player_1 = self.get_player_one()
-        player_2 = self.get_player_two()
+        """
+        Places a fence on a valid coordinate. Fences are one space long.
+        :param: an integer that represents which player (1 or 2) is making the move,
+        a letter indicating whether it is vertical (v) or horizontal (h) fence,
+        a tuple of integers that represents the position on which the fence is to be placed.
+        :return:
+        if player has no fence left, or if the fence is out of the boundaries of the board, or if there is already
+        a fence there and the new fence will overlap or intersect with the existing fence, return False.
+        If the fence can be placed, return True.
+        If it breaks the fair-play rule (and if you are doing the extra credit part), return exactly the string breaks
+        the fair play rule.
+        If the game has been already won, return False
+        """
+        player_object = self.check_player(player)
         validation = self.validate_fence_placement(player, fence_direction, coordinate)
-        if validation is True:  # if move is valid
-            self.get_board()[coordinate].append(fence_direction)  # adds fence to board
-            if player == 1:  # decreases fences for player placing fence
-                player_1.decrease_fences()
-            elif player == 2:
-                player_2.decrease_fences()
+        self.get_board()[coordinate].append(fence_direction)  # adds fence to board to check fair play rule
+        if validation and self.fair_play_rule(player, fence_direction, coordinate) is True:  # if move is valid
+            player_object.decrease_fences()
+            self.set_turn(self.get_opponent(player))
             return True
         else:  # if move invalid
-            return validation
+            self.get_board()[coordinate].remove(fence_direction)
+            return self.fair_play_rule(player, fence_direction, coordinate)
 
     def check_for_fence(self, fence_direction, coordinate):  # helper function for validate fence placement
         if fence_direction in self.get_board()[coordinate]:
@@ -255,8 +255,47 @@ class QuoridorGame:
         else:
             return False  # no fence found
 
-    def fair_play_rule(self, fence_direction, coordinate):
-        pass
+    def fair_play_rule(self, player, fence_direction, coordinate,
+                       opponent_location=None, used=None):
+        opponent_object = self.get_opponent(player)
+        vacant_spaces = [space for space in self.get_board() if space == []]
+        if used is None:  # first iteration
+            used = {}
+            opponent_location = opponent_object.get_player_position()
+        if opponent_object == self.get_player_one:
+            if opponent_object.get_player_position[1] == 8:
+                return True
+        elif opponent_object == self.get_player_two:
+            if opponent_object.get_player_position[1] == 0:
+                return True
+        elif len(used) == len(vacant_spaces):
+            return "breaks the fair play rule"
+        else:
+            if opponent_location not in used:
+                if self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
+                                           (opponent_location[0] - 1, opponent_location[1])) is True: # check left move
+                    used.add(opponent_location)
+                    opponent_location = (opponent_location[0] - 1, opponent_location[1])
+                    return self.fair_play_rule(player, fence_direction, coordinate, opponent_location, used)
+
+                if self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
+                                           (opponent_location[0] + 1, opponent_location[1])) is True:  # check right move
+                    used.add(opponent_location)
+                    opponent_location = (opponent_location[0] + 1, opponent_location[1])
+                    return self.fair_play_rule(player, fence_direction, coordinate, opponent_location, used)
+
+                if self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
+                                           (opponent_location[0], opponent_location[1] + 1)) is True:  # check up move
+                    used.add(opponent_location)
+                    opponent_location = (opponent_location[0], opponent_location[1] + 1)
+                    return self.fair_play_rule(player, fence_direction, coordinate, opponent_location, used)
+
+                if self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
+                           (opponent_location[0], opponent_location[1] - 1)) is True:  # check down move
+                    used.add(opponent_location)
+                    opponent_location = (opponent_location[0], opponent_location[1] - 1)
+                    return self.fair_play_rule(player, fence_direction, coordinate, opponent_location, used)
+
 
     # recursively check for path to winning side
     # If fair play, returns true
@@ -269,31 +308,29 @@ class QuoridorGame:
 
     def validate_fence_placement(self, player, fence_direction, coordinate):  # helper function for place fence
         """
-		Checks to see if a fence placement is valid.
-		:param: an integer that represents which player (1 or 2) is making the move,
-		a letter indicating whether it is vertical (v) or horizontal (h) fence,
-		a tuple of integers that represents the position on which the fence is to be placed.
-		:return:
-		If valid, returns True.
-		If invalid, returns False.
-		"""
-        player_1 = self.get_player_one()
-        player_2 = self.get_player_one()
-        if self.check_for_fence(fence_direction,
-                                coordinate) is False and self.get_status() == "IN PROGRESS":  # if no fence already there and game in progress
-            if player == 1 and player_1.get_fences() > 0:  # if player one still has fences
-                return self.fair_play_rule(fence_direction, coordinate)
-            elif player == 2 and player_2.get_fences() > 0:
-                return self.fair_play_rule(fence_direction, coordinate)
+        Checks to see if a fence placement is valid.
+        :param: an integer that represents which player (1 or 2) is making the move,
+        a letter indicating whether it is vertical (v) or horizontal (h) fence,
+        a tuple of integers that represents the position on which the fence is to be placed.
+        :return:
+        If valid, returns True.
+        If invalid, returns False.
+        """
+        player_object = self.check_player(player)
+        if self.check_for_fence(fence_direction, coordinate) is False and \
+                self.get_status() == "IN PROGRESS" and \
+                player_object.get_fences() > 0 and \
+                self.get_turn() == player_object:  # if no fence already there and game in progress and player has remaining fences
+            return True
         else:
             return False
 
     def is_winner(self, player):
         """To be used after making a move - checks to see whether player has won.
-		:param:
-		a single integer representing the player number as a parameter
-		:return:
-		returns True if that player has won and False if that player has not won."""
+        :param:
+        a single integer representing the player number as a parameter
+        :return:
+        returns True if that player has won and False if that player has not won."""
         p1_win = []
         p2_win = []
         for x in range(9):
@@ -341,14 +378,14 @@ class QuoridorGame:
 
 class Player:
     """Represents a player in the Quoridor game. The player class contains data that is specific to each player:
-	the player number, the number of fences left to play, and the current position of the player on the board. This
-	makes it more streamlined to implement certain methods.
+    the player number, the number of fences left to play, and the current position of the player on the board. This
+    makes it more streamlined to implement certain methods.
 
-	Note: fences placed on board are not stored in player class because they are no longer unique to the player.
+    Note: fences placed on board are not stored in player class because they are no longer unique to the player.
 
-	The Player class interacts with the QuoridorGame instance which is the mechanism for playing the game. The
-	Player class must interact with the QuoridorGame class because it stores all game specific information
-	such as the board, current game status, etc, as well as the methods to actually play the game."""
+    The Player class interacts with the QuoridorGame instance which is the mechanism for playing the game. The
+    Player class must interact with the QuoridorGame class because it stores all game specific information
+    such as the board, current game status, etc, as well as the methods to actually play the game."""
 
     def __init__(self, player_number):
         """Initializes player object"""
@@ -373,8 +410,8 @@ class Player:
 
     def decrease_fences(self):
         """Decreases the number of fences by 1.
-		:return:
-		if unable to decrease fences, returns False"""
+        :return:
+        if unable to decrease fences, returns False"""
         if self.get_fences() > 0:
             self._fences -= 1
         else:
@@ -382,14 +419,20 @@ class Player:
 
     def set_position(self, position):
         """Updates player's current position.
-		:param: tuple representing coordinates as a parameter
-		:return: None"""
+        :param: tuple representing coordinates as a parameter
+        :return: None"""
         self._position = position
 
 
 # INITIAL TESTS
 q = QuoridorGame()
-# q.print_board()
-print(q.is_winner(1))
-q.get_player_one().set_position((7, 8))
-print(q.is_winner(1))
+print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
+print(q.move_pawn(1, (4,1))) #moves the Player1 pawn -- valid move, returns True
+print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
+print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- valid move, returns True
+print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- returns True
+print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
+print(q.is_winner(1)) #returns False because Player 1 has not won
+print(q.is_winner(2)) #returns False because Player 2 has not won
+y = [space.append(y) for space in q.get_board() if space == []]
+print(y)
