@@ -87,37 +87,71 @@ class QuoridorGame:
 
 	def move_direction(self, old_coord, new_coord):
 		if self.is_adjacent(old_coord, new_coord) is True:
-			if new_coord[0] != old_coord[0] and new_coord[1] == old_coord[1]:  # horizontal move
-				return "horizontal"
-			elif new_coord[0] == old_coord[0] and new_coord[1] != old_coord[1]:
-				return "vertical"
-			else:
-				return "diagonal"
+			if new_coord[0] == old_coord[0] - 1 and new_coord[1] == old_coord[1]:
+				return "left"
+			elif new_coord[0] == old_coord[0] + 1 and new_coord[1] == old_coord[1]:
+				return "right"
+			elif new_coord[0] == old_coord[0] and new_coord[1] == old_coord[1] + 1:
+				return "up"
+			elif new_coord[0] == old_coord[0] and new_coord[1] == old_coord[1] - 1:
+				return "down"
+			elif new_coord[0] == old_coord[0] - 1 and new_coord[1] == old_coord[1] + 1:
+				return "diagonal up left"
+			elif new_coord[0] == old_coord[0] - 1 and  new_coord[1] == old_coord[1] - 1:
+				return "diagonal down left"
+			elif new_coord[0] == old_coord[0] + 1 and  new_coord[1] == old_coord[1] - 1:
+				return "diagonal down right"
+			elif new_coord[0] == old_coord[0] + 1 and new_coord[1] == old_coord[1] + 1:
+				return "diagonal up right"
 		else:
 			return False
 
-	def is_pawn_jump(self):
+	# MOVES TO ACCOUNT FOR
+	# Horizontal move: left: check for vertical fence current space
+	# 	right: check for vertical fence right space
+	# Vertical move: up: check for horizontal fence current space,
+	# 	down: check for horizontal fence below space
+	# Diagonal move:
+	#	up left:
+	#	up right:
+	#	down left:
+	#	down right:
+
+	def is_pawn_jump(self, old_coord, new_coord):
 		pass
 
 	def check_fence_block(self, old_coord, new_coord):
-		if self.move_direction(old_coord, new_coord) == "horizontal":
-			if "h" in self.get_board()[old_coord] or "h" in self.get_board()[(old_coord[0] + 1, old_coord[1])]:
-				return True
-			else:
-				return False
-		elif self.move_direction(old_coord, new_coord) == "vertical":
-			if "v" in self.get_board()[old_coord] or "v" in self.get_board()[(old_coord[0], old_coord[1] + 1)]:
-				return True
-			else:
-				return False
-		elif self.move_direction(old_coord, new_coord) == "diagonal":
-			if "h" or "v" in self.get_board()[(old_coord[0] + 1, old_coord[1] + 1)] or \
-				self.get_board()[(old_coord[0] + 1, old_coord[1] - 1)] or \
-				self.get_board()[(old_coord[0] - 1, old_coord[1] + 1)] or \
-				self.get_board()[(old_coord[0] - 1, old_coord[1] - 1)]:
-				return True
-			else:
-				return False
+		move_direction = self.move_direction(old_coord, new_coord)
+		if (move_direction == "left" and "h" in self.get_board()[old_coord]) or \
+			(move_direction == "right" and "h" in self.get_board()[(old_coord[0] + 1, old_coord[1])]) or \
+			(move_direction == "up" and "v" in self.get_board()[old_coord]) or \
+			(move_direction == "down" and "v" in self.get_board()[(old_coord[0], old_coord[1] - 1)]) or \
+			(move_direction == "diagonal up left" and "v" in self.get_board()[(old_coord[0], old_coord[1] + 1)]) or \
+			(move_direction == "diagonal up right" and "v" in self.get_board()[(old_coord[0] + 1, old_coord[1] + 1)]) or \
+			(move_direction == "diagonal down right" and "v" in self.get_board()[(old_coord[0] - 1, old_coord[1] -1)]) or \
+			(move_direction == "diagonal down left" and "v" in self.get_board()[(old_coord[0], old_coord[1] - 1)]):
+			return True  # move blocked by fence
+		else:
+			return False  # move not blocked by fence
+
+
+		# 	if "h" in self.get_board()[old_coord] or "h" in self.get_board()[(old_coord[0] + 1, old_coord[1])]:
+		# 		return True
+		# 	else:
+		# 		return False
+		# elif self.move_direction(old_coord, new_coord) == "vertical":
+		# 	if "v" in self.get_board()[old_coord] or "v" in self.get_board()[(old_coord[0], old_coord[1] + 1)]:
+		# 		return True
+		# 	else:
+		# 		return False
+		# elif self.move_direction(old_coord, new_coord) == "diagonal":
+		# 	if "h" or "v" in self.get_board()[(old_coord[0] + 1, old_coord[1] + 1)] or \
+		# 		self.get_board()[(old_coord[0] + 1, old_coord[1] - 1)] or \
+		# 		self.get_board()[(old_coord[0] - 1, old_coord[1] + 1)] or \
+		# 		self.get_board()[(old_coord[0] - 1, old_coord[1] - 1)]:
+		# 		return True
+		# 	else:
+		# 		return False
 
 
 	def move_pawn(self, player, coordinate):
@@ -157,7 +191,7 @@ class QuoridorGame:
 
 		# self.is_pawn_jump()
 		player_location = player_object.get_player_position()
-		if self.get_status() is "IN PROGRESS":  # game is not won
+		if self.get_status() == "IN PROGRESS":  # game is not won
 			if self.get_turn() == player_object:  # is player's turn
 				if self.is_on_board(coordinate) and self.is_adjacent(player_location, coordinate) is True: # is on board and adjacent
 					if opponent_object.get_player_position() != coordinate:  # opponent not on space
@@ -371,6 +405,19 @@ class Player:
 #	QuoridorGame class, as well as an attribute of the Player class. This will enable better functionality in
 #	implementing methods, and will require that the pawn's location is updated in both spots simultaneously when a move
 #	is made.
+
+pass
+
+# MOVES TO ACCOUNT FOR
+# Horizontal move: left: check for vertical fence current space
+# 	right: check for veritcal fence right space
+# Vertical move: up: check for horizontal fence current space,
+# 	down: check for horizontal fence below space
+# Diagonal move:
+#	up left:
+#	up right:
+#	down left:
+#	down right:
 
 # INITIAL TESTS
 q = QuoridorGame()
