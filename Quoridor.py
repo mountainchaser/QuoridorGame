@@ -241,15 +241,19 @@ class QuoridorGame:
         player_object = self.check_player(player)
         opponent_number = self.get_opponent(player).get_player_number()
         validation = self.validate_fence_placement(player, fence_direction, coordinate)
+        fair_play = self.fair_play_rule(player, fence_direction, coordinate)
         self.get_board()[coordinate].append(fence_direction)  # adds fence to board to check fair play rule
-        if validation and self.fair_play_rule(player, fence_direction, coordinate) is True:  # if move is valid
+        if validation  is True:  # if placement is valid # and self.fair_play_rule(player, fence_direction, coordinate)
             player_object.decrease_fences()
-            if self.fair_play_rule(player, fence_direction, coordinate) == True:
-                self.set_turn(opponent_number)
-                return True
-            else:
-                return self.fair_play_rule(player, fence_direction, coordinate)
-        else:  # if move invalid
+            self.set_turn(opponent_number)
+            return True
+        elif validation is False: # invalid move
+            self.get_board()[coordinate].remove(fence_direction)
+            return False
+        elif fair_play == "breaks the fair play rule":
+            self.get_board()[coordinate].remove(fence_direction)
+            return "breaks the fair play rule"
+        else:
             self.get_board()[coordinate].remove(fence_direction)
             return False
 
@@ -262,23 +266,23 @@ class QuoridorGame:
     def fair_play_rule(self, player, fence_direction, coordinate,
                        opponent_location=None, used=None):
         opponent_object = self.get_opponent(player)
-        vacant_spaces = []
-        for space in self.get_board():
-            if self.get_board()[space] == []:
-                vacant_spaces.append(space)
         if used is None:  # first iteration
             used = {}
             opponent_location = opponent_object.get_player_position()
         if opponent_object == self.get_player_one:
             if opponent_object.get_player_position[1] == 8:
+                self.set_turn(player)
                 return True
         elif opponent_object == self.get_player_two:
             if opponent_object.get_player_position[1] == 0:
+                self.set_turn(player)
                 return True
-        elif len(used) == len(vacant_spaces):
+        elif opponent_location in used:
+            self.set_turn(player)
             return "breaks the fair play rule"
         else:
             if opponent_location not in used:
+                self.set_turn(opponent_object.get_player_number())
                 if self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
                                            (opponent_location[0] - 1, opponent_location[1])) is True: # check left move
                     used[opponent_location] = ""
@@ -286,7 +290,7 @@ class QuoridorGame:
                     return self.fair_play_rule(player, fence_direction, coordinate, opponent_location, used)
 
                 if self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-                                           (opponent_location[0] + 1, opponent_location[1])) is True:  # check right move
+                                           (opponent_location[0] + 1, opponent_location[1])) is True: # check right move
                     used[opponent_location] = ""
                     opponent_location = (opponent_location[0] + 1, opponent_location[1])
                     return self.fair_play_rule(player, fence_direction, coordinate, opponent_location, used)
@@ -302,6 +306,12 @@ class QuoridorGame:
                     used[opponent_location] = ""
                     opponent_location = (opponent_location[0], opponent_location[1] + 1)
                     return self.fair_play_rule(player, fence_direction, coordinate, opponent_location, used)
+                else:
+                    self.set_turn(player)
+                    return "breaks the fair play rule"
+            else:
+                self.set_turn(player)
+                return "breaks the fair play rule"
 
 
     # recursively check for path to winning side
