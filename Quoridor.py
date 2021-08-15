@@ -241,18 +241,18 @@ class QuoridorGame:
         player_object = self.check_player(player)
         opponent_number = self.get_opponent(player).get_player_number()
         validation = self.validate_fence_placement(player, fence_direction, coordinate)
-        fair_play = self.fair_play_rule(player, fence_direction, coordinate)
+        # fair_play = self.fair_play_rule(player, fence_direction, coordinate)
         self.get_board()[coordinate].append(fence_direction)  # adds fence to board to check fair play rule
-        if validation  is True:  # if placement is valid # and self.fair_play_rule(player, fence_direction, coordinate)
+        if validation is True:  # if placement is valid # and self.fair_play_rule(player, fence_direction, coordinate)
             player_object.decrease_fences()
             self.set_turn(opponent_number)
             return True
         elif validation is False: # invalid move
             self.get_board()[coordinate].remove(fence_direction)
             return False
-        elif fair_play == "breaks the fair play rule":
-            self.get_board()[coordinate].remove(fence_direction)
-            return "breaks the fair play rule"
+        # elif fair_play == "breaks the fair play rule":
+        #     self.get_board()[coordinate].remove(fence_direction)
+        #     return "breaks the fair play rule"
         else:
             self.get_board()[coordinate].remove(fence_direction)
             return False
@@ -271,7 +271,7 @@ class QuoridorGame:
             opponent_location = opponent_object.get_player_position()
         if opponent_object == self.get_player_one:
             if opponent_object.get_player_position[1] == 8:
-                self.set_turn(player)
+                self.set_turn(player)    # NEED TO FIX TURN UPDATE
                 return True
         elif opponent_object == self.get_player_two:
             if opponent_object.get_player_position[1] == 0:
