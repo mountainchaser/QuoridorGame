@@ -27,11 +27,12 @@ class MyTestCase(unittest.TestCase):
 
 	def test_placing_fences(self):
 		self.assertEqual(["h"], self.q1.get_board()[(4,2)])
+		self.assertTrue(self.q1.place_fence(self.q1.get_player_two().get_player_number(), "h", (4, 2)))
 
 # PLACING FENCES
 
-# test QuoridorGame is instance
-# test player is instance
+# # test QuoridorGame is instance
+# # test player is instance
 
 # test pawn cannot be placed outside of board
 # test pawn cannot be placed on same space as other opponent
