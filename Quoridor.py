@@ -67,7 +67,7 @@ class QuoridorGame:
     def check_player(self, player):
         """Looks up player object by number.
         :param: player number (int)
-        ":returns: player_object, or "not a valid player number"""
+        :returns: player_object, or "not a valid player number"""
         if player == 1:
             return self.get_player_one()
         elif player == 2:
@@ -351,22 +351,16 @@ class QuoridorGame:
         a single integer representing the player number as a parameter
         :return:
         returns True if that player has won and False if that player has not won."""
-        p1_win = []
-        p2_win = []
-        for x in range(9):
-            for y in range(9):
-                if y == 8:
-                    p1_win.append((x, y))
-                if y == 0:
-                    p2_win.append((x, y))
-        if self.get_player_one().get_player_position() not in p1_win and self.get_player_two().get_player_position() not in p2_win:
-            return False
-        elif player == 1:
-            if self.get_player_one().get_player_position() in p1_win:
+        player_object = self.check_player(player)
+        player_location = player_object.get_player_position()
+        if player == 1:
+            if player_location[1] == 8:
                 return True
         elif player == 2:
-            if self.get_player_two().get_player_position() in p2_win:
+            if player_location[1] == 0:
                 return True
+        else:
+            return False
 
 # used in make_move: if player has won, updates game status after making move
 # player 1 wins by reaching y == 8
@@ -446,13 +440,13 @@ class Player:
 
 
 # INITIAL TESTS
-# q = QuoridorGame()
-# print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
-# print(q.move_pawn(1, (4,1))) #moves the Player1 pawn -- valid move, returns True
+q = QuoridorGame()
+print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
+print(q.move_pawn(1, (4,1))) #moves the Player1 pawn -- valid move, returns True
 # print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
 # print(q.move_pawn(2, (4,6))) #moves the Player2 pawn -- valid move, returns True
 # print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- returns True
 # print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
 # print(q.is_winner(1)) #returns False because Player 1 has not won
-# print(q.is_winner(2)) #returns False because Player 2 has not won
+print(q.is_winner(2)) #returns False because Player 2 has not won
 
