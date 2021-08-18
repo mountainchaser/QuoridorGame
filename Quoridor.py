@@ -196,7 +196,6 @@ class QuoridorGame:
             self.set_turn(opponent_object.get_player_number())
             if self.is_winner(player):
                 self.set_status("PLAYER " + str(player) + " WINS")
-            return True
         return validation
 
     def validate_pawn_move(self, player, player_location, coordinate):
@@ -224,7 +223,7 @@ class QuoridorGame:
                     if self.check_fence_block(player_location, coordinate) == False:
                         return True  # if players are adjacent, no fence block, move is not location of other pawn, valid move
                 else:
-                    return False
+                    return False  # invalid move
             elif self.is_adjacent(player_location, coordinate) is True and \
                     self.check_fence_block(player_location, coordinate) is False and \
                     self.move_direction(player_location, coordinate) in directions:  # is adjacent not blocked by fence, not diagonal
@@ -251,18 +250,18 @@ class QuoridorGame:
         player_object = self.check_player(player)
         opponent_number = self.get_opponent(player).get_player_number()
         validation = self.validate_fence_placement(player, fence_direction, coordinate)
-        # fair_play = self.fair_play_rule(player, fence_direction, coordinate)
+        fair_play = self.fair_play_rule(player, fence_direction, coordinate) # remove to deactivate fair_play
         self.get_board()[coordinate].append(fence_direction)  # adds fence to board to check fair play rule
-        if validation is True:  # if placement is valid # and self.fair_play_rule(player, fence_direction, coordinate)
+        if fair_play == "breaks the fair play rule":  # remove to deactivate fair_play
+            self.get_board()[coordinate].remove(fence_direction)
+            return "breaks the fair play rule"
+        elif validation is True:  # if placement is valid # and self.fair_play_rule(player, fence_direction, coordinate)
             player_object.decrease_fences()
             self.set_turn(opponent_number)
             return True
         elif validation is False: # invalid move
             self.get_board()[coordinate].remove(fence_direction)
             return False
-        # elif fair_play == "breaks the fair play rule":
-        #     self.get_board()[coordinate].remove(fence_direction)
-        #     return "breaks the fair play rule"
         else:
             self.get_board()[coordinate].remove(fence_direction)
             return False
@@ -277,6 +276,7 @@ class QuoridorGame:
                        opponent_location=None, used=None):
         opponent_object = self.get_opponent(player)
         if used is None:  # first iteration
+            self.set_turn(opponent_object.get_player_number())
             used = {}
             opponent_location = opponent_object.get_player_position()
         if opponent_object == self.get_player_one:
@@ -287,12 +287,18 @@ class QuoridorGame:
             if opponent_object.get_player_position[1] == 0:
                 self.set_turn(player)
                 return True
-        elif opponent_location in used:
+        elif (self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
+                                        (opponent_location[0] - 1, opponent_location[1])) and \
+                self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
+                                        (opponent_location[0] + 1, opponent_location[1])) and \
+                self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
+                                        (opponent_location[0], opponent_location[1] - 1)) and \
+                self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
+                                        (opponent_location[0], opponent_location[1] + 1))) is False:
             self.set_turn(player)
             return "breaks the fair play rule"
         else:
             if opponent_location not in used:
-                self.set_turn(opponent_object.get_player_number())
                 if self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
                                            (opponent_location[0] - 1, opponent_location[1])) is True: # check left move
                     used[opponent_location] = ""
@@ -316,12 +322,12 @@ class QuoridorGame:
                     used[opponent_location] = ""
                     opponent_location = (opponent_location[0], opponent_location[1] + 1)
                     return self.fair_play_rule(player, fence_direction, coordinate, opponent_location, used)
-                else:
-                    self.set_turn(player)
-                    return "breaks the fair play rule"
-            else:
-                self.set_turn(player)
-                return "breaks the fair play rule"
+            #     else:
+            #         self.set_turn(player)
+            #         return "breaks the fair play rule"
+            # elif opponent_location in used:
+            #     self.set_turn(player)
+            #     return "breaks the fair play rule"
 
 
     # recursively check for path to winning side
@@ -454,10 +460,18 @@ class Player:
 q = QuoridorGame()
 print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
 print(q.move_pawn(1, (4,1))) #moves the Player1 pawn -- valid move, returns True
-# print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
-# print(q.move_pawn(2, (4,6))) #moves the Player2 pawn -- valid move, returns True
-# print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- returns True
-# print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
+print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
+print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- valid move, returns True
+print(q.place_fence(1, 'h',(1,1))) #places Player1's fence -- returns True
+print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
+print(q.place_fence(1, 'h',(1,2)))
+print(q.place_fence(2, 'h',(1,3)))
+print(q.place_fence(1, 'h',(1,4)))
+print(q.place_fence(2, 'h',(1,5)))
+print(q.place_fence(1, 'h',(1,6)))
+print(q.place_fence(2, 'h',(1,7)))
+print(q.place_fence(1, 'h',(1,8)))
+print(q.place_fence(1, 'h',(1,0)))
 # print(q.is_winner(1)) #returns False because Player 1 has not won
-print(q.is_winner(2)) #returns False because Player 2 has not won
+# print(q.is_winner(2)) #returns False because Player 2 has not won
 
