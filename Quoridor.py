@@ -356,11 +356,14 @@ class QuoridorGame:
         if player == 1:
             if player_location[1] == 8:
                 return True
+            else:
+                return False
         elif player == 2:
             if player_location[1] == 0:
                 return True
-        else:
-            return False
+            else:
+                return False
+
 
 # used in make_move: if player has won, updates game status after making move
 # player 1 wins by reaching y == 8
