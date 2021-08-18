@@ -154,8 +154,8 @@ class QuoridorGame:
         opponent_direction = self.move_direction(old_coord, opponent_location)
         move_direction = self.move_direction(old_coord, new_coord)
         if opponent_direction == move_direction and \
-                self.is_adjacent_plus_1(old_coord,
-                                        new_coord):  # if opponent and move are in same direction and move is 2 spaces
+                self.is_adjacent(old_coord, opponent_location) and \
+                self.is_adjacent_plus_1(old_coord, new_coord):  # if opponent and move are in same direction and move is 2 spaces, and opponnets are adjacent
             if self.check_fence_block(old_coord, self.pawn_jump_coordinates_for_check_fence(old_coord, new_coord)) \
                     is False:
                 return True  # is a valid pawn jump
@@ -209,18 +209,25 @@ class QuoridorGame:
         If invalid, returns False.
         """
         opponent_location = self.get_opponent(player).get_player_position()
+        directions = ["up", "down", "left", "right"]
         if self.get_status() == "IN PROGRESS" and \
                 self.get_turn() == player and \
                 self.is_on_board(coordinate) and \
                 opponent_location != coordinate:  # if game is not won, is player's turn, coordinate on board, and opponent not on space
-            if self.is_adjacent(player_location, coordinate) is True and \
-                    self.check_fence_block(player_location,
-                                           coordinate) is False:  # is adjacent and not blocked by fence
-                return True  # valid move
-            elif self.is_pawn_jump(player, player_location, coordinate) is True and \
+            if self.is_adjacent(player_location, opponent_location):  # if players are adjacent
+                if self.is_pawn_jump(player, player_location, coordinate) is True and \
                 self.check_fence_block(player_location,
                             self.pawn_jump_coordinates_for_check_fence(player_location, coordinate)) \
-                    is False:  # if a pawn jump and not blocked by fence
+                        is False:  # if a pawn jump and not blocked by fence
+                    return True  # valid move
+                elif self.move_direction(player_location, coordinate) != self.move_direction(player_location, opponent_location):
+                    if self.check_fence_block(player_location, coordinate) == False:
+                        return True  # if players are adjacent, no fence block, move is not location of other pawn, valid move
+                else:
+                    return False
+            elif self.is_adjacent(player_location, coordinate) is True and \
+                    self.check_fence_block(player_location, coordinate) is False and \
+                    self.move_direction(player_location, coordinate) in directions:  # is adjacent not blocked by fence, not diagonal
                 return True  # valid move
             else:
                 return False  # invalid move
@@ -340,7 +347,8 @@ class QuoridorGame:
         if self.check_for_fence(fence_direction, coordinate) is False and \
                 self.get_status() == "IN PROGRESS" and \
                 player_object.get_fences() > 0 and \
-                self.get_turn() == player:  # if no fence already there and game in progress and player has remaining fences
+                (coordinate[0] and coordinate[1] >= 0) and \
+                self.get_turn() == player:  # if no fence already there and game in progress and player has remaining fences and not negative
             return True
         else:
             return False
