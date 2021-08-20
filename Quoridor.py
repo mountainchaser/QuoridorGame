@@ -250,8 +250,8 @@ class QuoridorGame:
         player_object = self.check_player(player)
         opponent_number = self.get_opponent(player).get_player_number()
         validation = self.validate_fence_placement(player, fence_direction, coordinate)
-        fair_play = self.fair_play_rule(player, fence_direction, coordinate) # remove to deactivate fair_play
         self.get_board()[coordinate].append(fence_direction)  # adds fence to board to check fair play rule
+        fair_play = self.fair_play_rule(player, fence_direction, coordinate) # remove to deactivate fair_play
         if fair_play == "breaks the fair play rule":  # remove to deactivate fair_play
             self.get_board()[coordinate].remove(fence_direction)
             return "breaks the fair play rule"
@@ -288,13 +288,13 @@ class QuoridorGame:
                 self.set_turn(player)
                 return True
         elif (self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-                                        (opponent_location[0] - 1, opponent_location[1])) and \
+                                        (opponent_location[0] - 1, opponent_location[1]) is False) and \
                 self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-                                        (opponent_location[0] + 1, opponent_location[1])) and \
+                                        (opponent_location[0] + 1, opponent_location[1]) is False) and \
                 self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-                                        (opponent_location[0], opponent_location[1] - 1)) and \
+                                        (opponent_location[0], opponent_location[1] - 1) is False) and \
                 self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-                                        (opponent_location[0], opponent_location[1] + 1))) is False:
+                                        (opponent_location[0], opponent_location[1] + 1)) is False):
             self.set_turn(player)
             return "breaks the fair play rule"
         else:
