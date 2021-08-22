@@ -275,7 +275,7 @@ class QuoridorGame:
         """Checks to see if fence placement breaks the game's fair play rule, meaning that
         the fence placement blocks the other player from the possibility of winning and reaching
         the other side.
-        :param: integer representing the oppononent of the player placing the fence,
+        :param: integer representing the opponent of the player placing the fence,
         :returns: True if move doesn't block other player from possibility of winning
         breaks fair play rule if move blocks player from winning side of board"""
         if used is None:  # first iteration
@@ -320,17 +320,6 @@ class QuoridorGame:
             self.set_turn(player_number)
             return "breaks the fair play rule"
 
-
-
-    # recursively check for path to winning side
-    # If fair play, returns true
-    # else, returns false
-    # player
-    # vertical or horizontal (tuple)  v(0,0)
-    # game must still be in play
-    # can't fully block player from reaching goal line
-    # fair play rule
-
     def validate_fence_placement(self, player, fence_direction, coordinate):  # helper function for place fence
         """
         Checks to see if a fence placement is valid.
@@ -369,11 +358,6 @@ class QuoridorGame:
                 return True
             else:
                 return False
-
-
-# used in make_move: if player has won, updates game status after making move
-# player 1 wins by reaching y == 8
-# player 2 wins by reaching y == 0
 
 # def print_board(self):
 # 	"""Prints visual representation of current board."""
