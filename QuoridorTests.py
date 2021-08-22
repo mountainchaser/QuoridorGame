@@ -8,10 +8,11 @@ class MyTestCase(unittest.TestCase):
 	def setUp(self):
 		"""Creates test objects"""
 		self.q1 = QuoridorGame()
-		self.q1.move_pawn(self.q1.get_player_one().get_player_number(), (4, 1))
-		self.q1.move_pawn(self.q1.get_player_two().get_player_number(), (3, 8))
-		self.q1.move_pawn(self.q1.get_player_two().get_player_number(), (2, 8))
-		self.q1.place_fence(self.q1.get_player_one().get_player_number(), "h", (4,2))
+		self.q1.move_pawn(1, (4, 1)) # True
+		self.q1.move_pawn(2, (3, 8))  # True
+		self.q1.move_pawn(1, (4, 2))  #True
+		self.q1.place_fence(2, "h", (4,2))
+		self.q1.place_fence(1, "v", (6,7))
 
 	def test_object_can_be_created(self):
 		self.assertIsInstance(self.q1, QuoridorGame)
@@ -19,15 +20,18 @@ class MyTestCase(unittest.TestCase):
 		self.assertIsInstance(self.q1.get_player_two(), Player)
 
 	def test_moves(self):
-		self.assertEqual(self.q1.get_player_one().get_player_position(), (4,1))
+		self.assertEqual(self.q1.get_player_one().get_player_position(), (4,2))
 		self.assertEqual(self.q1.get_player_two().get_player_position(), (3, 8))
-		self.assertFalse(self.q1.move_pawn(self.q1.get_player_two().get_player_number(), (2, 8)))
-		self.assertIn("P2", self.q1.get_board()[(3, 8)])
-		self.assertIn("P1", self.q1.get_board()[(4, 1)])
+		self.assertFalse(self.q1.move_pawn(2, (3, 8)))
+		self.assertTrue(self.q1.move_pawn(2, (2,8)))
+		self.assertIn("P2", self.q1.get_board()[(2, 8)])
+		self.assertIn("P1", self.q1.get_board()[(4, 2)])
 
 	def test_placing_fences(self):
-		self.assertEqual(["h"], self.q1.get_board()[(4,2)])
-		self.assertTrue(self.q1.place_fence(self.q1.get_player_two().get_player_number(), "h", (4, 2)))
+		self.assertIn("h", self.q1.get_board()[(4,2)])
+		self.assertIn("v", self.q1.get_board()[(6,7)])
+		self.assertTrue(self.q1.place_fence(2, "h", (4, 3)))
+		self.assertFalse(self.q1.place_fence(1, "h", (4, 3)))
 
 # PLACING FENCES
 

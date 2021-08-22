@@ -254,7 +254,6 @@ class QuoridorGame:
             self.get_board()[coordinate].append(fence_direction)  # adds fence to board to check fair play rule
             opponent_number = self.get_opponent(player).get_player_number()
             fair_play = self.fair_play_rule(opponent_number)  # remove to deactivate fair_play
-            print("fair play: " + str(fair_play))
             if fair_play == "breaks the fair play rule":  # remove to deactivate fair_play
                 self.get_board()[coordinate].remove(fence_direction)
                 return "breaks the fair play rule"
@@ -434,21 +433,21 @@ class Player:
 
 
 # INITIAL TESTS
-q = QuoridorGame()
-# print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
-print(q.move_pawn(1, (3,0))) #moves the Player1 pawn -- valid move, returns True
-# # print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
-# print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- valid move, returns True
-print(q.place_fence(2, 'h',(1,1))) #places Player1's fence -- returns True
-# print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
-print(q.place_fence(1, 'h',(2,1)))
-print(q.place_fence(2, 'h',(3,1)))
-print(q.place_fence(1, 'h',(4,1)))
-print(q.place_fence(2, 'h',(5,1)))
-print(q.place_fence(1, 'h',(6,1)))
-print(q.place_fence(2, 'h',(7,1)))
-print(q.place_fence(1, 'h',(8,1)))
-print(q.place_fence(2, 'h',(0,1)))
+# q = QuoridorGame()
+# # print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
+# print(q.move_pawn(1, (3,0))) #moves the Player1 pawn -- valid move, returns True
+# # # print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
+# # print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- valid move, returns True
+# print(q.place_fence(2, 'h',(1,1))) #places Player1's fence -- returns True
+# # print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
+# print(q.place_fence(1, 'h',(2,1)))
+# print(q.place_fence(2, 'h',(3,1)))
+# print(q.place_fence(1, 'h',(4,1)))
+# print(q.place_fence(2, 'h',(5,1)))
+# print(q.place_fence(1, 'h',(6,1)))
+# print(q.place_fence(2, 'h',(7,1)))
+# print(q.place_fence(1, 'h',(8,1)))
+# print(q.place_fence(2, 'h',(0,1)))
 
 # print(q.is_winner(1)) #returns False because Player 1 has not won
 # print(q.is_winner(2)) #returns False because Player 2 has not won
