@@ -253,7 +253,7 @@ class QuoridorGame:
 
         if validation is True:  # if placement is valid # and self.fair_play_rule(player, fence_direction, coordinate)
             self.get_board()[coordinate].append(fence_direction)  # adds fence to board to check fair play rule
-            fair_play = self.fair_play_rule(player, fence_direction, coordinate)  # remove to deactivate fair_play
+            fair_play = self.fair_play_rule(player)  # remove to deactivate fair_play
             print("fair play: " + str(fair_play))
             if fair_play == "breaks the fair play rule":  # remove to deactivate fair_play
                 self.get_board()[coordinate].remove(fence_direction)
@@ -471,7 +471,7 @@ class Player:
 q = QuoridorGame()
 print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
 print(q.move_pawn(1, (4,1))) #moves the Player1 pawn -- valid move, returns True
-print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
+# print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
 print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- valid move, returns True
 print(q.place_fence(1, 'h',(1,1))) #places Player1's fence -- returns True
 print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
