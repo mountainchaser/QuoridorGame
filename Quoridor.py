@@ -248,7 +248,6 @@ class QuoridorGame:
         If the game has been already won, return False
         """
         player_object = self.check_player(player)
-        opponent_number = self.get_opponent(player).get_player_number()
         validation = self.validate_fence_placement(player, fence_direction, coordinate)
 
         if validation is True:  # if placement is valid # and self.fair_play_rule(player, fence_direction, coordinate)
@@ -273,7 +272,12 @@ class QuoridorGame:
             return False  # no fence found
 
     def fair_play_rule(self, opponent, opponent_location=None, used=None):
-        """ """
+        """Checks to see if fence placement breaks the game's fair play rule, meaning that
+        the fence placement blocks the other player from the possibility of winning and reaching
+        the other side.
+        :param: integer representing the oppononent of the player placing the fence,
+        :returns: True if move doesn't block other player from possibility of winning
+        breaks fair play rule if move blocks player from winning side of board"""
         if used is None:  # first iteration
             used = {}
             self.set_turn(opponent)
@@ -283,12 +287,6 @@ class QuoridorGame:
         right_move = (opponent_location[0] + 1, opponent_location[1])
         up_move = (opponent_location[0], opponent_location[1] - 1)
         down_move = (opponent_location[0], opponent_location[1] + 1)
-        moves = [left_move, right_move, up_move, down_move]
-
-        no_valid_moves = ((self.validate_pawn_move(opponent, opponent_location, left_move) is False) and \
-                         (self.validate_pawn_move(opponent, opponent_location, right_move) is False) and \
-                         (self.validate_pawn_move(opponent, opponent_location, up_move) is False) and \
-                         (self.validate_pawn_move(opponent, opponent_location, down_move) is False))
 
         if opponent == self.get_player_one().get_player_number() and opponent_location[1] == 8:
             return True  # if player one can get to the other side
@@ -298,93 +296,30 @@ class QuoridorGame:
 
         if self.validate_pawn_move(opponent, opponent_location, left_move) is True and left_move not in used: # check left move
             used[opponent_location] = opponent_location
-            print("left: " + str(opponent_location))
             return self.fair_play_rule(opponent, left_move, used)
             return True
 
         if self.validate_pawn_move(opponent, opponent_location, right_move) is True and right_move not in used: # check right move
             used[opponent_location] = opponent_location
-            print("right: " + str(opponent_location))
             self.fair_play_rule(opponent, right_move, used)
             return True
 
         if self.validate_pawn_move(opponent, opponent_location, up_move) is True and up_move not in used:  # check up move
             used[opponent_location] = opponent_location
-            print("up: " + str(opponent_location))
             return self.fair_play_rule(opponent, up_move, used)
             return True
 
         if self.validate_pawn_move(opponent, opponent_location, down_move) is True and down_move not in used:  # check down move
             used[opponent_location] = opponent_location
-            print("down: " + str(opponent_location))
             return self.fair_play_rule(opponent, down_move, used)
             return True
 
-        # elif no_valid_moves is True or all(moves) in used:
         else:
             player_object = self.get_opponent(opponent)
             player_number = player_object.get_player_number()
             self.set_turn(player_number)
             return "breaks the fair play rule"
 
-        #
-        # elif no_valid_moves is True:
-        #     player_object = self.get_opponent(opponent)
-        #     player_number = player_object.get_player_number()
-        #     self.set_turn(player_number)
-        #     return "breaks the fair play rule"
-            # else:
-            #     return "breaks the fair play rule"
-            # # else:
-            #     used[opponent_location] = opponent_location
-            #     return self.fair_play_rule(opponent, opponent_location, used)
-
-        # else:
-        #     for move in moves:
-        #         opponent_location
-        #         if move not in used and self.validate_pawn_move(opponent, move, ) is True:
-        #
-        #         else:
-        #             opponent_location =
-
-        # elif opponent_location in used and no_valid_moves is True:
-        #     player_object = self.get_opponent(opponent)
-        #     player_number = player_object.get_player_number()
-        #     self.set_turn(player_number)
-        #     return "breaks the fair play rule"
-
-
-            # else:
-            #     player_object = self.get_opponent(opponent)
-            #     player_number = player_object.get_player_number()
-            #     self.set_turn(player_number)
-            #     return "breaks the fair play rule"
-        # else:
-        #     player_object = self.get_opponent(opponent)
-        #     player_number = player_object.get_player_number()
-        #     self.set_turn(player_number)
-        #     return "breaks the fair play rule"
-        # no_valid_moves = (self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-        #                                           left_move) is False) and \
-        #                  (self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-        #                                           right_move) is False) and \
-        #                  (self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-        #                                           up_move) is False) and \
-        #                  (self.validate_pawn_move(opponent_object.get_player_number(), opponent_location,
-        #                                           down_move) is False)
-        # if no_valid_moves is True:
-        #     self.set_turn(player)
-        #     return "breaks the fair play rule"
-
-
-                # else:
-                #     pass
-        #     else:
-        #         self.set_turn(player)
-        #         return "breaks the fair play rule"
-        # elif opponent_location in used:
-        #     self.set_turn(player)
-        #     return "breaks the fair play rule"
 
 
     # recursively check for path to winning side
