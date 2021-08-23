@@ -1,7 +1,3 @@
-# Author: Allison Land
-# Date: 8/14/2021
-# Description: Portfolio project - defines a QuoridorGame class which allows a Player class (also defined here) to
-# play the board game Quoridor.
 
 class QuoridorGame:
     """
