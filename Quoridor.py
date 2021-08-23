@@ -76,6 +76,7 @@ class QuoridorGame:
             return "not a valid player number"
 
     def get_opponent(self, player):
+        """:returns: opponent object"""
         player_object = self.check_player(player)
         if player_object == self.get_player_one():
             opponent_object = self.get_player_two()
@@ -84,12 +85,20 @@ class QuoridorGame:
         return opponent_object
 
     def is_on_board(self, coordinate):
+        """Checks to see if coordinate is on the board.
+        :param: coordinate tuple
+        :returns: True if on board
+        False if not on board."""
         if coordinate in self.get_board():
             return True
         else:
             return False
 
     def is_adjacent(self, old_coord, new_coord):
+        """Checks to see if coordinates are adjacent.
+        :param: coordinate tuple with current location,
+        new coordinate tuple
+        :returns: True if adjacent, else returns False"""
         adjacent_spaces = [(old_coord[0] + 1, old_coord[1] + 1), (old_coord[0] + 1, old_coord[1] - 1),
                            (old_coord[0] + 1, old_coord[1]), (old_coord[0], old_coord[1] + 1),
                            (old_coord[0], old_coord[1] - 1), (old_coord[0] - 1, old_coord[1]),
@@ -100,6 +109,10 @@ class QuoridorGame:
             return False
 
     def is_adjacent_plus_1(self, old_coord, new_coord):
+        """Checks to see if coordinates are two spaces away from each other.
+        :param: coordinate tuple with current location,
+        new coordinate tuple
+        :returns: True if adjacent+1, else returns False"""
         adjacent_plus_1_spaces = [(old_coord[0] + 2, old_coord[1]), (old_coord[0], old_coord[1] + 2),
                                   (old_coord[0], old_coord[1] - 2), (old_coord[0] - 2, old_coord[1])]
         if new_coord in adjacent_plus_1_spaces:
@@ -108,6 +121,7 @@ class QuoridorGame:
             return False
 
     def move_direction(self, old_coord, new_coord):
+        """Returns the direction of a move from one coordinate to another."""
         if self.is_adjacent(old_coord, new_coord) is True:
             if new_coord[0] == old_coord[0] - 1 and new_coord[1] == old_coord[1]:
                 return "left"
@@ -149,13 +163,16 @@ class QuoridorGame:
             return (x, y)
 
     def is_pawn_jump(self, player, old_coord, new_coord):
+        """Determines if a move is a pawn jump.
+        :returns: True if a pawn jump, else returns False."""
         opponent_object = self.get_opponent(player)
         opponent_location = opponent_object.get_player_position()
         opponent_direction = self.move_direction(old_coord, opponent_location)
         move_direction = self.move_direction(old_coord, new_coord)
         if opponent_direction == move_direction and \
                 self.is_adjacent(old_coord, opponent_location) and \
-                self.is_adjacent_plus_1(old_coord, new_coord):  # if opponent and move are in same direction and move is 2 spaces, and opponnets are adjacent
+                self.is_adjacent_plus_1(old_coord, new_coord):
+            # if opponent and move are in same direction and move is 2 spaces, and opponents are adjacent
             if self.check_fence_block(old_coord, self.pawn_jump_coordinates_for_check_fence(old_coord, new_coord)) \
                     is False:
                 return True  # is a valid pawn jump
@@ -163,6 +180,9 @@ class QuoridorGame:
             return False
 
     def check_fence_block(self, old_coord, new_coord):
+        """Checks to see if a fence is blocking a move.
+        :param: current location tuple coordinate, new location tuple coordinate
+        :returns: True if fence is blocking, else returns False."""
         move_direction = self.move_direction(old_coord, new_coord)
         if (move_direction == "left" and "v" in self.get_board()[old_coord]) or \
                 (move_direction == "right" and "v" in self.get_board()[(old_coord[0] + 1, old_coord[1])]) or \
@@ -212,21 +232,24 @@ class QuoridorGame:
         if self.get_status() == "IN PROGRESS" and \
                 self.get_turn() == player and \
                 self.is_on_board(coordinate) and \
-                opponent_location != coordinate:  # if game is not won, is player's turn, coordinate on board, and opponent not on space
+                opponent_location != coordinate:
+            # if game is not won, is player's turn, coordinate on board, and opponent not on space
             if self.is_adjacent(player_location, opponent_location):  # if players are adjacent
                 if self.is_pawn_jump(player, player_location, coordinate) is True and \
-                self.check_fence_block(player_location,
+                        self.check_fence_block(player_location,
                             self.pawn_jump_coordinates_for_check_fence(player_location, coordinate)) \
                         is False:  # if a pawn jump and not blocked by fence
                     return True  # valid move
                 elif self.move_direction(player_location, coordinate) != self.move_direction(player_location, opponent_location):
-                    if self.check_fence_block(player_location, coordinate) == False:
-                        return True  # if players are adjacent, no fence block, move is not location of other pawn, valid move
+                    if self.check_fence_block(player_location, coordinate) is False:
+                        return True
+                        # if players are adjacent, no fence block, move is not location of other pawn, valid move
                 else:
                     return False  # invalid move
             elif self.is_adjacent(player_location, coordinate) is True and \
                     self.check_fence_block(player_location, coordinate) is False and \
-                    self.move_direction(player_location, coordinate) in directions:  # is adjacent not blocked by fence, not diagonal
+                    self.move_direction(player_location, coordinate) in directions:
+                # is adjacent not blocked by fence, not diagonal
                 return True  # valid move
             else:
                 return False  # invalid move
@@ -293,12 +316,12 @@ class QuoridorGame:
         if opponent == self.get_player_two().get_player_number() and opponent_location[1] == 0:
             return True  # if player two can get to the other side
 
-        if self.validate_pawn_move(opponent, opponent_location, left_move) is True and left_move not in used: # check left move
+        if self.validate_pawn_move(opponent, opponent_location, left_move) is True and left_move not in used:  # check left move
             used[opponent_location] = opponent_location
             return self.fair_play_rule(opponent, left_move, used)
             return True
 
-        if self.validate_pawn_move(opponent, opponent_location, right_move) is True and right_move not in used: # check right move
+        if self.validate_pawn_move(opponent, opponent_location, right_move) is True and right_move not in used:  # check right move
             used[opponent_location] = opponent_location
             self.fair_play_rule(opponent, right_move, used)
             return True
@@ -334,7 +357,8 @@ class QuoridorGame:
                 self.get_status() == "IN PROGRESS" and \
                 player_object.get_fences() > 0 and \
                 coordinate[0] >= 0 and coordinate[1] >= 0 and coordinate[0] <= 8 and coordinate[1] <= 8 \
-                and self.get_turn() == player:  # if no fence already there and game in progress and player has remaining fences and not negative
+                and self.get_turn() == player:
+            # if no fence already there and game in progress and player has remaining fences and not negative
             return True
         else:
             return False
@@ -357,31 +381,6 @@ class QuoridorGame:
                 return True
             else:
                 return False
-
-# def print_board(self):
-# 	"""Prints visual representation of current board."""
-#   for i in range
-# 	board = "+==+==+==+==+==+==+==+==+==+\n" \
-# 	        "|            P1            |\n" \
-# 	        "+  +  +  +  +  +  +  +  +  +\n" \
-# 	        "|                          |\n" \
-# 	        "+  +  +  +  +  +  +  +  +  +\n" \
-# 	        "|                          |\n" \
-# 	        "+  +  +  +  +  +  +  +  +  +\n" \
-# 	        "|                          |\n" \
-# 	        "+  +  +  +  +  +  +  +  +  +\n" \
-# 	        "|                          |\n" \
-# 	        "+  +  +  +  +  +  +  +  +  +\n" \
-# 	        "|                          |\n" \
-# 	        "+  +  +  +  +  +  +  +  +  +\n" \
-# 	        "|                          |\n" \
-# 	        "+  +  +  +  +  +  +  +  +  +\n" \
-# 	        "|                          |\n" \
-# 	        "+  +  +  +  +  +  +  +  +  +\n" \
-# 	        "|            P2            |\n" \
-# 	        "+==+==+==+==+==+==+==+==+==+\n"
-# 	# for coord in self.get_board():  # add in player positions and fences
-# 	print(board)
 
 
 class Player:
@@ -430,25 +429,3 @@ class Player:
         :param: tuple representing coordinates as a parameter
         :return: None"""
         self._position = position
-
-
-# INITIAL TESTS
-# q = QuoridorGame()
-# # print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
-# print(q.move_pawn(1, (3,0))) #moves the Player1 pawn -- valid move, returns True
-# # # print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
-# # print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- valid move, returns True
-# print(q.place_fence(2, 'h',(1,1))) #places Player1's fence -- returns True
-# # print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
-# print(q.place_fence(1, 'h',(2,1)))
-# print(q.place_fence(2, 'h',(3,1)))
-# print(q.place_fence(1, 'h',(4,1)))
-# print(q.place_fence(2, 'h',(5,1)))
-# print(q.place_fence(1, 'h',(6,1)))
-# print(q.place_fence(2, 'h',(7,1)))
-# print(q.place_fence(1, 'h',(8,1)))
-# print(q.place_fence(2, 'h',(0,1)))
-
-# print(q.is_winner(1)) #returns False because Player 1 has not won
-# print(q.is_winner(2)) #returns False because Player 2 has not won
-
